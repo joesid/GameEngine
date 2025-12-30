@@ -5,6 +5,42 @@
 #include <vector>
 #include <string>
 
+struct Vec2
+{
+    float x = 0.0f;
+    float y = 0.0f;
+};
+
+Vec2 offset;
+
+void keyCallback(GLFWwindow * window, int key, int scanCode, int action, int mods)
+{
+    if (action == GLFW_PRESS)
+    {
+        switch(key)
+        {
+            case GLFW_KEY_UP:
+                offset.y += 0.01f;
+                std::cout << "GLFW_KEY_UP" << std::endl;
+                break;
+            case GLFW_KEY_DOWN:
+                offset.y -= 0.01f;
+                std::cout << "GLFW_KEY_DOWN" << std::endl;
+                break;
+            case GLFW_KEY_RIGHT:
+                offset.x += 0.01f;
+                std::cout << "GLFW_KEY_RIGHT" << std::endl;
+                break;
+            case GLFW_KEY_LEFT:
+                offset.x -= 0.01f;
+                std::cout << "GLFW_KEY_LEFT" << std::endl;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 int main() {
 
 	// initialize GLFW Library
@@ -26,8 +62,9 @@ int main() {
 		return -1;
 
 	}
-
-	glfwSetWindowPos(window, 2000, 150);
+    //Get Keyboard Input
+    glfwSetKeyCallback(window, keyCallback);
+	glfwSetWindowPos(window, 2000, 150); //Rendered Window position
 	glfwMakeContextCurrent(window);
 
 	//Initialize GLEW Library to make use of OpenGL Functions
@@ -41,13 +78,15 @@ int main() {
          #version 330 core
          layout (location = 0) in vec3 position;
          layout (location = 1) in vec3 color;
+
+         uniform vec2 uOffset;
        
          out vec3 vColor;
 
          void main()
           {
             vColor = color;
-            gl_Position = vec4(position.x, position.y, position.z, 1.0);
+            gl_Position = vec4(position.x + uOffset.x, position.y + uOffset.y, position.z, 1.0);
           }
      )";
 
@@ -70,10 +109,11 @@ int main() {
          out vec4 FragColor;
          
          in vec3 vColor;
+         uniform vec4 uColor;
 
          void main()
          { 
-           FragColor = vec4(vColor, 1.0);
+           FragColor = vec4(vColor, 1.0) * uColor;
          }
 )";
 
@@ -107,7 +147,7 @@ int main() {
 	 glDeleteShader(vertexShader);
 	 glDeleteShader(fragmentShader);
 
-	 //Draw Rectange - Vector Positions
+	 //Draw Rectangle - Vector Positions
 	 std::vector<float> vertices =
 	 {
 		  0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -123,7 +163,7 @@ int main() {
 		 0,2,3
 	 };
 
-	GLuint vbo;
+	GLuint vbo; // Vertex Buffer Object
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	// Transfer Buffer Data from the System memory into the GPU memory
@@ -131,21 +171,20 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 
-	GLuint ebo;
+	GLuint ebo;   // Element Buffer Object(Index Buffer Object) - Stores Indices for OpenGl
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	
 
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); // GPU Reuses Vertices from the Vertex Array
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)nullptr);
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float),(void*)(3 * sizeof(float)));
@@ -154,6 +193,11 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+    //Set Uniform location for CPU
+    GLint uColorLoc = glGetUniformLocation(shaderProgram, "uColor");
+    GLint uOffsetLoc = glGetUniformLocation(shaderProgram, "uOffset");
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(0.6f, 0.5f, 0.7f, 1.0f);
@@ -161,6 +205,8 @@ int main() {
 
 		//Activate Shader program
 		glUseProgram(shaderProgram);
+        glUniform4f(uColorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+        glUniform2f(uOffsetLoc, offset.x, offset.y);
 
 		glBindVertexArray(vao);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);

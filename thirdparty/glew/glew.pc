@@ -1,6 +1,6 @@
-prefix=C:/Users/Wanogho Eni/source/repos/WorldEngine/out/install/x64-debug
+prefix=C:/Program Files (x86)/GameEngine
 exec_prefix=${prefix}
-libdir=C:/Users/Wanogho Eni/source/repos/WorldEngine/out/install/x64-debug/lib
+libdir=C:/Program Files (x86)/GameEngine/lib
 includedir=${prefix}/include
 
 Name: glew

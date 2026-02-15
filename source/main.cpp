@@ -36,7 +36,7 @@ struct Vec3 {
 // Game constants
 const int GRID_WIDTH = 20;
 const int GRID_HEIGHT = 20;
-const float UPDATE_INTERNAL = 0.15f; // seconds
+const float UPDATE_INTERVAL = 0.15f; // seconds
 const float CELL_WIDTH = 2.0f/GRID_WIDTH;
 const float CELL_HEIGHT = 2.0f/GRID_HEIGHT;
 
@@ -52,7 +52,7 @@ int score = 0;
 bool gameOver = false;
 bool gameStarted = false;
 float timeSinceLastUpdate = 0.0f;
-float snakeSpeed = UPDATE_INTERNAL;
+float snakeSpeed = UPDATE_INTERVAL;
 
 // Shader sources
 std::string vertexShaderSource = R"(
@@ -313,10 +313,13 @@ void UpdateGame(float deltaTime)
             {
                 case Direction::Up:
                     newHead.y++;
+                    break;
                 case Direction::Down:
                     newHead.y--;
+                    break;
                 case Direction::Left:
                     newHead.x--;
+                    break;
                 case Direction::Right:
                     newHead.x++;
                     break;
@@ -357,11 +360,11 @@ void UpdateGame(float deltaTime)
                 {
                     snakeSpeed -= 0.01f;
                 }
-                else
-                {
-                     // Remove tail
-                     snake.pop_back();
-                }
+
+            }
+            else
+            {// Remove tail
+                snake.pop_back();
             }
         }
     }
@@ -620,7 +623,7 @@ void ResetGame()
     gameStarted = false;
     score = 0;
     timeSinceLastUpdate = 0.0f;
-    snakeSpeed = UPDATE_INTERNAL;
+    snakeSpeed = UPDATE_INTERVAL;
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

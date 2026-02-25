@@ -14,7 +14,7 @@
 #
 
 include(${CMAKE_CURRENT_LIST_DIR}/glew-targets.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/CopyImportedTargetProperties.cmake)
+include(CopyImportedTargetProperties.cmake)
 
 # decide which import library (glew/glew_s)
 # needs to be copied to GLEW::GLEW

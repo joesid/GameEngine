@@ -1,35 +1,21 @@
-﻿# CMakeList.txt : Top-level CMake project file, do global configuration
-# and include sub-projects here.
-#
-cmake_minimum_required (VERSION 3.10)
+# Engine CMakeLists.txt
+cmake_minimum_required(VERSION 3.8)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project ("GameEngine")
-
 set(PROJECT_SOURCE_FILES
-source/main.cpp
-        source/snake.cpp
+        source/main.cpp
+        source/Game.h
+        source/Game.cpp
 )
-
-include_directories(source)
+# Add the application
+include_directories(engine/source)
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
 
-# Include sub-projects.
-#target_include_directories("source")
-
-add_subdirectory(thirdparty/glfw-3.4
-"${CMAKE_CURRENT_BINARY_DIR}/glfw_build")
-include_directories(thirdparty/glfw-3.4/include)
-
-
-# Add Glew library
-
-set(BUILD_UTILS OFF CACHE BOOL "utilities" FORCE)
-add_subdirectory(thirdparty/glew/build/cmake
-"${CMAKE_CURRENT_BINARY_DIR}/glew_build")
-include_directories(thirdparty/glew/include)
-set_property(TARGET glew_s PROPERTY FOLDER GLEW)
-set_property(TARGET glew PROPERTY FOLDER GLEW)
-
+# Add engine library
+add_compile_definitions(GLEW_NO_GLU)
+add_subdirectory(engine "${CMAKE_CURRENT_BINARY_DIR}/engine_build")
 target_link_libraries(${PROJECT_NAME}
-glfw
-glew_s)
+        Engine
+)

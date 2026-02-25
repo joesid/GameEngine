@@ -22,7 +22,7 @@ if (APPLE)
     option (BUILD_FRAMEWORK "Build Framework bundle for OSX" OFF)
 endif ()
 
-set (GLEW_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+set (GLEW_DIR ../..)
 
 # get version from config/version
 file (STRINGS ${GLEW_DIR}/config/version  _VERSION_MAJOR_STRING REGEX "GLEW_MAJOR[ ]*=[ ]*[0-9]+.*")
@@ -224,14 +224,14 @@ if(MAYBE_EXPORT)
   install(EXPORT glew-targets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/glew
     NAMESPACE GLEW::)
   install(FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/glew-config.cmake
-      ${CMAKE_CURRENT_SOURCE_DIR}/CopyImportedTargetProperties.cmake
+          glew-config.cmake
+          CopyImportedTargetProperties.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/glew)
 endif()
 
 if(NOT TARGET uninstall)
   configure_file(
-      ${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in
+          cmake_uninstall.cmake.in
       ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
       IMMEDIATE @ONLY)
 

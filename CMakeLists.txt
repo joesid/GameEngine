@@ -9,6 +9,9 @@ set(PROJECT_SOURCE_FILES
         source/Game.h
         source/Game.cpp
 )
+
+include_directories(engine/thirdparty/glew/include)
+
 # Add the application
 include_directories(engine/source)
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})

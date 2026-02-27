@@ -1,5 +1,6 @@
 #include "graphics/GraphicsAPI.h"
 #include "graphics/ShaderProgram.h"
+#include "render/Material.h"
 #include <iostream>
 
 
@@ -60,6 +61,16 @@ namespace eng
 
     void GraphicsAPI::BindShaderProgram(ShaderProgram* shaderProgram)
     {
-       shaderProgram->Bind();
+      if (shaderProgram)
+      {
+          shaderProgram->Bind();
+    }}
+
+    void GraphicsAPI::BindMaterial(Material* material)
+    {
+        if (material)
+        {
+            material->Bind();
+        }
     }
 }

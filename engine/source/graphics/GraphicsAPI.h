@@ -8,6 +8,7 @@
 namespace eng
 {
     class ShaderProgram;
+    class Material;
 
     class GraphicsAPI
     {
@@ -16,6 +17,7 @@ namespace eng
                                                            const std::string& fragmentSource);
 
         void BindShaderProgram(ShaderProgram* shaderProgram);
+        void BindMaterial(Material* material);
 
     };
 }

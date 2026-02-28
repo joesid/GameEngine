@@ -69,16 +69,21 @@ namespace eng
       }
 
       // Initialize time tracking
-      m_lastTimePoint = std::chrono::steady_clock::now();
+      m_lastTimePoint = std::chrono::high_resolution_clock::now();
 
       while (!glfwWindowShouldClose(m_window) && !m_application->NeedsToBeClosed())
       {
           glfwPollEvents();
-        auto now = std::chrono::steady_clock ::now();
+        auto now = std::chrono::high_resolution_clock::now();
         float deltaTime = std::chrono::duration<float>(now - m_lastTimePoint).count();
         m_lastTimePoint = now;
 
         m_application->Update(deltaTime);
+
+        m_graphicsAPI.SetClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        m_graphicsAPI.ClearBuffers();
+
+        m_renderQueue.Draw(m_graphicsAPI);
 
           glfwSwapBuffers(m_window);
       }
@@ -110,9 +115,14 @@ namespace eng
         return m_inputManager;
     }
 
-    GraphicsAPI& Engine::GetGraphicsAPI() {
+    GraphicsAPI& Engine::GetGraphicsAPI()
         {
             return m_graphicsAPI;
         }
+
+
+    RenderQueue& Engine::GetRenderQueue()
+    {
+      return m_renderQueue;
     }
 }

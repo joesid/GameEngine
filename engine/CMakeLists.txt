@@ -22,6 +22,8 @@ set(PROJECT_SOURCE_FILES
         source/render/Mesh.cpp
         source/render/Mesh.h
         source/graphics/VertexLayout.h
+        source/render/RenderQueue.cpp
+        source/render/RenderQueue.h
 )
 
 include_directories(source)

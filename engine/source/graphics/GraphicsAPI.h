@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <GL/glew.h>
+#include <vector>
 
 namespace eng
 {
@@ -15,7 +16,8 @@ namespace eng
     public:
         std::shared_ptr<ShaderProgram> CreateShaderProgram(const std::string& vertexSource,
                                                            const std::string& fragmentSource);
-
+        GLuint CreateVertexBuffer(const std::vector<float>& vertices);
+        GLuint CreateIndexBuffer(const std::vector<uint32_t>& vertices);
         void BindShaderProgram(ShaderProgram* shaderProgram);
         void BindMaterial(Material* material);
 

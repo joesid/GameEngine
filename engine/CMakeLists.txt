@@ -24,6 +24,10 @@ set(PROJECT_SOURCE_FILES
         source/graphics/VertexLayout.h
         source/render/RenderQueue.cpp
         source/render/RenderQueue.h
+        source/scene/GameObject.cpp
+        source/scene/GameObject.h
+        source/scene/Scene.cpp
+        source/scene/Scene.h
 )
 
 include_directories(source)

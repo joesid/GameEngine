@@ -1,4 +1,5 @@
 #pragma once
+#include "scene/Component.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -17,6 +18,23 @@ namespace eng
         GameObject* GetParent();
         bool IsAlive() const;
         void MarkForDestroy();
+
+        void AddComponent(Component* component);
+        template<typename T, typename = typename std::enable_if_t<std::is_base_of_v<Component, T>>>
+        T* GetComponent()
+        {
+            size_t typeId = Component::StaticTypeId<T>();
+
+            for (auto& component : m_components)
+            {
+                if (component->GetTypeId() == typeId)
+                {
+                    return static_cast<T*>(component.get());
+                }
+            }
+
+            return nullptr;
+        }
 
         const glm::vec3& GetPosition() const;
         void SetPosition(const glm::vec3& pos);
@@ -37,6 +55,7 @@ namespace eng
         std::string m_name;
         GameObject* m_parent = nullptr;
         std::vector<std::unique_ptr<GameObject>> m_children;
+        std::vector<std::unique_ptr<Component>> m_components;
         bool m_isAlive = true;
         glm::vec3 m_position = glm::vec3(0.0f);
         glm::vec3 m_rotation = glm::vec3(0.0f);

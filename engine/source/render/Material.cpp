@@ -8,24 +8,24 @@ namespace eng
         m_shaderProgram = shaderProgram;
     }
 
+    ShaderProgram* Material::GetShaderProgram()
+    {
+        return m_shaderProgram.get();
+    }
+
     void Material::SetParam(const std::string& name, float value)
     {
-     m_floatParams[name]=value;
+        m_floatParams[name] = value;
     }
 
     void Material::SetParam(const std::string& name, float v0, float v1)
     {
-        m_float2Params[name] = {v0, v1};
-    }
-
-    void Material::SetParam(const std::string& name, const glm::mat4& value)
-    {
-        m_mat4Params[name] = value;
+        m_float2Params[name] = { v0, v1 };
     }
 
     void Material::Bind()
     {
-        if(!m_shaderProgram)
+        if (!m_shaderProgram)
         {
             return;
         }
@@ -37,14 +37,9 @@ namespace eng
             m_shaderProgram->SetUniform(param.first, param.second);
         }
 
-        for (auto& param: m_float2Params)
+        for (auto& param : m_float2Params)
         {
-            m_shaderProgram -> SetUniform(param.first, param.second.first, param.second.second);
-        }
-
-        for (auto& param: m_mat4Params)
-        {
-            m_shaderProgram->SetUniform(param.first, param.second);
+            m_shaderProgram->SetUniform(param.first, param.second.first, param.second.second);
         }
     }
 }

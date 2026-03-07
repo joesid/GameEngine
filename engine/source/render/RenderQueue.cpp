@@ -2,7 +2,7 @@
 #include "render/Mesh.h"
 #include "render/Material.h"
 #include "graphics/GraphicsAPI.h"
-
+#include "graphics/ShaderProgram.h"
 
 namespace eng
 {
@@ -11,17 +11,15 @@ namespace eng
         m_commands.push_back(command);
     }
 
-    void RenderQueue::Draw(GraphicsAPI& graphicsAPI)
+    void RenderQueue::Draw(GraphicsAPI& graphicsAPI, const CameraData& cameraData)
     {
         for (auto& command : m_commands)
         {
-            // Set model matrix on material so Material::Bind uploads it to shader
-            if (command.material)
-            {
-                command.material->SetParam("uModel", command.modelMatrix);
-                graphicsAPI.BindMaterial(command.material);
-            }
-
+            graphicsAPI.BindMaterial(command.material);
+            auto shaderProgram = command.material->GetShaderProgram();
+            shaderProgram->SetUniform("uModel", command.modelMatrix);
+            shaderProgram->SetUniform("uView", cameraData.viewMatrix);
+            shaderProgram->SetUniform("uProjection", cameraData.projectionMatrix);
             graphicsAPI.BindMesh(command.mesh);
             graphicsAPI.DrawMesh(command.mesh);
         }

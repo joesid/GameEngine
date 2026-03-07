@@ -20,11 +20,10 @@ namespace eng
         GLint GetUniformLocation(const std::string& name);
         void SetUniform(const std::string& name, float value);
         void SetUniform(const std::string& name, float v0, float v1);
-        void SetUniform(const std::string& name, const glm::mat4& value);
+        void SetUniform(const std::string& name, const glm::mat4& mat);
 
     private:
         std::unordered_map<std::string, GLint> m_uniformLocationCache;
         GLuint m_shaderProgramID = 0;
-
     };
 }

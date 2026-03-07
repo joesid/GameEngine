@@ -50,7 +50,7 @@ namespace eng
                    obj->m_parent = nullptr;
                    currentParent->m_children.erase(it);
                    result = true;
-			   }
+		   }
            }
            // No Parent currently. This can be in 2 cases
            // 1. The object is in the scene root
@@ -152,6 +152,8 @@ namespace eng
 
               }
           }
+
       }
+      return result;
     }
 }

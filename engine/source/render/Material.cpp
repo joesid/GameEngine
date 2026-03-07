@@ -18,6 +18,11 @@ namespace eng
         m_float2Params[name] = {v0, v1};
     }
 
+    void Material::SetParam(const std::string& name, const glm::mat4& value)
+    {
+        m_mat4Params[name] = value;
+    }
+
     void Material::Bind()
     {
         if(!m_shaderProgram)
@@ -35,6 +40,11 @@ namespace eng
         for (auto& param: m_float2Params)
         {
             m_shaderProgram -> SetUniform(param.first, param.second.first, param.second.second);
+        }
+
+        for (auto& param: m_mat4Params)
+        {
+            m_shaderProgram->SetUniform(param.first, param.second);
         }
     }
 }

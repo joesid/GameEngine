@@ -8,9 +8,12 @@ set(PROJECT_SOURCE_FILES
         source/main.cpp
         source/Game.h
         source/Game.cpp
+        source/TestObject.cpp
+        source/TestObject.h
 )
 
 include_directories(engine/thirdparty/glew/include)
+include_directories(engine/thirdparty/glm-1.0.1)
 
 # Add the application
 include_directories(engine/source)

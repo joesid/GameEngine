@@ -1,5 +1,6 @@
 #include "scene/GameObject.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace eng
 {
@@ -92,10 +93,9 @@ namespace eng
         // Translation
         mat = glm::translate(mat, m_position);
 
-        // Rotation
-        mat = glm::rotate(mat, m_rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)); // X-axis
-        mat = glm::rotate(mat, m_rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)); // Y-axis
-        mat = glm::rotate(mat, m_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)); // Z-axis
+        // Rotation - convert Euler angles (in radians) to quaternion, then to matrix
+        glm::quat qRot = glm::quat(m_rotation);
+        mat = mat * glm::mat4_cast(qRot);
 
         // Scale
         mat = glm::scale(mat, m_scale);

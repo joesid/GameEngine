@@ -13,5 +13,5 @@
 #include "scene/Component.h"
 #include "scene/components/MeshComponent.h"
 #include "scene/components/CameraComponent.h"
-
+#include "scene/components/PlayerControllerComponent.h"
 

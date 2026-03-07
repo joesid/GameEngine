@@ -1,6 +1,7 @@
 #include "scene/components/CameraComponent.h"
 #include "scene/GameObject.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace eng
 {
@@ -10,7 +11,20 @@ namespace eng
 
     glm::mat4 CameraComponent::GetViewMatrix() const
     {
-        return glm::inverse(m_owner->GetWorldTransform());
+        glm::mat4 mat = glm::mat4(1.0f);
+        
+        // Convert Euler angles (in radians) to quaternion, then to matrix
+        glm::quat qRot = glm::quat(m_owner->GetRotation());
+        mat = glm::mat4_cast(qRot);
+
+        mat[3] = glm::vec4(m_owner->GetPosition(), 1.0f);
+
+        if (m_owner->GetParent())
+        {
+            mat = m_owner->GetParent()->GetWorldTransform() * mat;
+        }
+
+        return glm::inverse(mat);
     }
 
     glm::mat4 CameraComponent::GetProjectionMatrix(float aspect) const

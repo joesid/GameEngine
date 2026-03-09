@@ -1,4 +1,5 @@
 #include "graphics/ShaderProgram.h"
+#include "graphics/Texture.h"
 #include <glm/gtc/type_ptr.hpp>
 
 namespace eng {
@@ -18,7 +19,7 @@ ShaderProgram::~ShaderProgram()
     glUseProgram(m_shaderProgramID);
     }
 
-    GLint ShaderProgram::GetUniformLocation(const std::string &name)
+    GLint ShaderProgram::GetUniformLocation(const std::string& name)
     {
         auto it = m_uniformLocationCache.find(name);
         if (it != m_uniformLocationCache.end())
@@ -28,6 +29,12 @@ ShaderProgram::~ShaderProgram()
         GLint location = glGetUniformLocation(m_shaderProgramID, name.c_str());
         m_uniformLocationCache[name] = location;
         return location;
+    }
+
+    void ShaderProgram::SetUniform(const std::string& name, int value)
+    {
+        auto location = GetUniformLocation(name);
+        glUniform1i(location, value);
     }
 
     void ShaderProgram::SetUniform(const std::string& name, float value)
@@ -42,9 +49,31 @@ ShaderProgram::~ShaderProgram()
         glUniform2f(location, v0, v1);
     }
 
-    void ShaderProgram::SetUniform(const std::string& name, const glm::mat4& value)
+    void ShaderProgram::SetUniform(const std::string& name, const glm::mat4& mat)
     {
         auto location = GetUniformLocation(name);
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+    }
+
+    void ShaderProgram::SetUniform(const std::string& name, const glm::vec3& value)
+    {
+        auto location = GetUniformLocation(name);
+        glUniform3fv(location, 1, glm::value_ptr(value));
+    }
+
+    void ShaderProgram::SetUniform(const std::string& name, const glm::vec4& value)
+    {
+        auto location = GetUniformLocation(name);
+        glUniform4fv(location, 1, glm::value_ptr(value));
+    }
+
+    void ShaderProgram::SetTexture(const std::string& name, Texture* texture)
+    {
+        auto location = GetUniformLocation(name);
+
+        glActiveTexture(GL_TEXTURE0 + m_currentTextureUnit);
+        glBindTexture(GL_TEXTURE_2D, texture->GetID());
+        glUniform1i(location, m_currentTextureUnit);
+        ++m_currentTextureUnit;
     }
 }

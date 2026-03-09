@@ -28,10 +28,12 @@ namespace eng
         if (action == GLFW_PRESS)
         {
             inputManager.SetMouseButtonPressed(button, true);
+            inputManager.SetMouseButtonWasPressed(button, true);
         }
         else if (action == GLFW_RELEASE)
         {
             inputManager.SetMouseButtonPressed(button, false);
+            inputManager.SetMouseButtonWasReleased(button, true);
         }
     }
 
@@ -45,7 +47,12 @@ namespace eng
         inputManager.SetMousePositionCurrent(currentPos);
     }
 
-     Engine& Engine::GetInstance()
+    void windowSizeCallback(GLFWwindow* window, int width, int height)
+    {
+        eng::Engine::GetInstance().GetGraphicsAPI().SetViewport(0, 0, width, height);
+    }
+
+    Engine& Engine::GetInstance()
      {
          static Engine instance;
          return instance;
@@ -81,7 +88,11 @@ namespace eng
             return false;
         }
 
+
         glfwSetKeyCallback(m_window, keyCallback);
+        glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
+        glfwSetCursorPosCallback(m_window, cursorPositionCallback);
+        glfwSetWindowSizeCallback(m_window, windowSizeCallback);
 
         glfwMakeContextCurrent(m_window);
 
@@ -94,68 +105,94 @@ namespace eng
         return m_application->Init();
     }
 
+
+
     void Engine::Run()
     {
-      if(!m_application)
-      {
-          return;
-      }
-
-      // Initialize time tracking
-      m_lastTimePoint = std::chrono::steady_clock::now();
-
-      while (!glfwWindowShouldClose(m_window) && !m_application->NeedsToBeClosed())
-      {
-          glfwPollEvents();
-
-        auto now = std::chrono::steady_clock::now();
-        float deltaTime = std::chrono::duration<float>(now - m_lastTimePoint).count();
-        m_lastTimePoint = now;
-
-        m_application->Update(deltaTime);
-
-        m_graphicsAPI.SetClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        m_graphicsAPI.ClearBuffers();
-
-        CameraData cameraData;
-
-        int width = 0;
-        int height = 0;
-        glfwGetWindowSize(m_window, &width, &height);
-        float aspect = static_cast<float>(width) / static_cast<float>(height);
-
-        if (m_currentScene) {
-            if (auto cameraObject = m_currentScene->GetMainCamera())
-            {
-                // logic for matrices
-                auto cameraComponent = cameraObject->GetComponent<CameraComponent>();
-                if (cameraComponent) {
-                    cameraData.viewMatrix = cameraComponent->GetViewMatrix();
-                    cameraData.projectionMatrix = cameraComponent->GetProjectionMatrix(aspect);
-                }
-            }
+        if (!m_application)
+        {
+            return;
         }
 
-        m_renderQueue.Draw(m_graphicsAPI, cameraData);
+        m_lastTimePoint = std::chrono::steady_clock::now();
 
-          glfwSwapBuffers(m_window);
-      }
+        while (!glfwWindowShouldClose(m_window) && !m_application->NeedsToBeClosed())
+        {
+            glfwPollEvents();
+
+            auto now = std::chrono::steady_clock::now();
+            float deltaTime = std::chrono::duration<float>(now - m_lastTimePoint).count();
+            m_lastTimePoint = now;
+
+            m_physicsManager.Update(deltaTime);
+
+            if (m_uiInputSystem.IsActive())
+            {
+                m_uiInputSystem.Update(deltaTime);
+            }
+
+            m_application->Update(deltaTime);
+
+            m_graphicsAPI.ClearBuffers();
+
+            CameraData cameraData;
+            std::vector<LightData> lights;
+
+            int width = 0;
+            int height = 0;
+            glfwGetWindowSize(m_window, &width, &height);
+            float aspect = static_cast<float>(width) / static_cast<float>(height);
+
+            if (m_currentScene)
+            {
+                if (auto cameraObject = m_currentScene->GetMainCamera())
+                {
+                    // logic for matrices
+                    auto cameraComponent = cameraObject->GetComponent<CameraComponent>();
+                    if (cameraComponent)
+                    {
+                        cameraData.viewMatrix = cameraComponent->GetViewMatrix();
+                        cameraData.projectionMatrix = cameraComponent->GetProjectionMatrix(aspect);
+                        cameraData.orthoMatrix = glm::ortho(
+                                0.0f, static_cast<float>(width),
+                                0.0f, static_cast<float>(height)
+                        );
+                        cameraData.position = cameraObject->GetWorldPosition();
+                    }
+                }
+
+                lights = m_currentScene->CollectLights();
+            }
+
+            m_renderQueue.Draw(m_graphicsAPI, cameraData, lights);
+
+            glfwSwapBuffers(m_window);
+
+            m_inputManager.ClearStates();
+        }
+
+        m_application.reset(nullptr);
     }
 
     void Engine::Destroy()
     {
-      if(m_application)
-      {
-          m_application->Destroy();
-          m_application.reset();
-          glfwTerminate();
-          m_window = nullptr;
-      }
+        if (m_application)
+        {
+            m_application->Destroy();
+            m_application.reset();
+            glfwTerminate();
+            m_window = nullptr;
+        }
+    }
+
+    void Engine::SetCursorEnabled(bool enabled)
+    {
+        glfwSetInputMode(m_window, GLFW_CURSOR, enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
 
     void Engine::SetApplication(Application* app)
     {
-         m_application.reset(app);
+        m_application.reset(app);
     }
 
     Application* Engine::GetApplication()
@@ -169,23 +206,52 @@ namespace eng
     }
 
     GraphicsAPI& Engine::GetGraphicsAPI()
-        {
-            return m_graphicsAPI;
-        }
-
+    {
+        return m_graphicsAPI;
+    }
 
     RenderQueue& Engine::GetRenderQueue()
     {
-      return m_renderQueue;
+        return m_renderQueue;
     }
 
-    void Engine::SetScene(Scene* scene)
+    FileSystem& Engine::GetFileSystem()
     {
-        m_currentScene.reset(scene);
+        return m_fileSystem;
     }
 
-    Scene* Engine::GetScene()
+    TextureManager& Engine::GetTextureManager()
     {
-        return m_currentScene.get();
+        return m_textureManager;
+    }
+
+    PhysicsManager& Engine::GetPhysicsManager()
+    {
+        return m_physicsManager;
+    }
+
+    AudioManager& Engine::GetAudioManager()
+    {
+        return m_audioManager;
+    }
+
+    FontManager& Engine::GetFontManager()
+    {
+        return m_fontManager;
+    }
+
+    UIInputSystem& Engine::GetUIInputSystem()
+    {
+        return m_uiInputSystem;
+    }
+
+    void Engine::SetScene(const std::shared_ptr<Scene>& scene)
+    {
+        m_currentScene = scene;
+    }
+
+    const std::shared_ptr<Scene>& Engine::GetScene()
+    {
+        return m_currentScene;
     }
 }

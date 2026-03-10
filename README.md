@@ -1,4 +1,4 @@
-# GameEngine
+# World Engine | GameEngine
 
 A 3D game application built with a custom engine using C++17 and OpenGL. The game features player-controlled mechanics, interactive UI, and physics-based gameplay elements including jumping platforms and projectile systems.
 

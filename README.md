@@ -91,10 +91,3 @@ The physics system uses:
 
 Game scenes are loaded from `scenes/scene.sc` relative to the asset directory.
 
-## Visual Style
-
-The game uses a light blue background color (RGB: 117/256, 187/256, 253/256) suitable for outdoor environments.
-
----
-
-For more information about the custom engine, refer to the `eng` library documentation.

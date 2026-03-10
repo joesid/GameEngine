@@ -45,6 +45,8 @@ namespace eng
 
         glm::vec2 currentPos(static_cast<float>(xpos), static_cast<float>(ypos));
         inputManager.SetMousePositionCurrent(currentPos);
+
+        inputManager.SetMousePositionChanged(true);
     }
 
     void windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -53,16 +55,20 @@ namespace eng
     }
 
     Engine& Engine::GetInstance()
-     {
-         static Engine instance;
-         return instance;
-     }
+    {
+        static Engine instance;
+        return instance;
+    }
+
     bool Engine::Init(int width, int height)
     {
-        if(!m_application)
+        if (!m_application)
         {
             return false;
         }
+
+        Scene::RegisterTypes();
+        m_application->RegisterTypes();
 
 #if defined (__linux__)
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
@@ -73,21 +79,18 @@ namespace eng
             return false;
         }
 
-
-
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        m_window = glfwCreateWindow(width, height, "WorldEngine", nullptr, nullptr); // Create Window
+        m_window = glfwCreateWindow(width, height, "GameDevelopmentProject", nullptr, nullptr);
 
-        if (m_window == nullptr) // Check if Window was successfully created
+        if (m_window == nullptr)
         {
             std::cout << "Error creating window" << std::endl;
-            glfwTerminate();  //Clean GLFW Library
+            glfwTerminate();
             return false;
         }
-
 
         glfwSetKeyCallback(m_window, keyCallback);
         glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
@@ -102,10 +105,14 @@ namespace eng
             return false;
         }
 
+        m_graphicsAPI.Init();
+        m_graphicsAPI.SetViewport(0, 0, width, height);
+        m_physicsManager.Init();
+        m_audioManager.Init();
+        m_renderQueue.Init();
+        m_fontManager.Init();
         return m_application->Init();
     }
-
-
 
     void Engine::Run()
     {
@@ -154,8 +161,8 @@ namespace eng
                         cameraData.viewMatrix = cameraComponent->GetViewMatrix();
                         cameraData.projectionMatrix = cameraComponent->GetProjectionMatrix(aspect);
                         cameraData.orthoMatrix = glm::ortho(
-                                0.0f, static_cast<float>(width),
-                                0.0f, static_cast<float>(height)
+                            0.0f, static_cast<float>(width),
+                            0.0f, static_cast<float>(height)
                         );
                         cameraData.position = cameraObject->GetWorldPosition();
                     }
